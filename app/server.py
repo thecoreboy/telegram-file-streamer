@@ -48,8 +48,19 @@ app = FastAPI(title="Telegram File Streamer", lifespan=lifespan, docs_url=None, 
 
 @app.get("/", response_class=HTMLResponse)
 async def index_page(request: Request):
-    """Render server home landing page."""
-    return templates.TemplateResponse(request=request, name="index.html")
+    """Render server home landing page with recent files from BIN_CHANNEL if available."""
+    files = []
+    if Config.BIN_CHANNEL:
+        try:
+            files = await get_recent_channel_files(Config.BIN_CHANNEL, limit=30)
+        except Exception as e:
+            logger.warning(f"Could not load recent files for index: {e}")
+
+    return templates.TemplateResponse(
+        request=request,
+        name="index.html",
+        context={"files": files},
+    )
 
 
 @app.get("/health")
