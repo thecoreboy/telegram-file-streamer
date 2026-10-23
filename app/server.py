@@ -13,7 +13,7 @@ from fastapi.responses import HTMLResponse, StreamingResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
 from app.config import Config
-from app.bot import init_bot, get_stored_message, get_recent_channel_files
+from app.bot import init_bot, init_user_client, get_stored_message, get_recent_channel_files
 import app.bot as bot_module
 from app.utils import (
     get_media_info,
@@ -36,11 +36,23 @@ async def lifespan(app: FastAPI):
     await client.start()
     bot_info = await client.get_me()
     logger.info(f"Bot successfully connected as @{bot_info.username} (ID: {bot_info.id})")
+
+    u_client = init_user_client()
+    if u_client:
+        logger.info("Starting Telegram Premium User Client for max speed...")
+        await u_client.start()
+        user_info = await u_client.get_me()
+        logger.info(f"Telegram Premium User active: {user_info.first_name} (Premium: {user_info.is_premium})")
+
     yield
+
     if client.is_connected:
         logger.info("Stopping Pyrogram Bot Client...")
         await client.stop()
-        logger.info("Bot client disconnected cleanly.")
+    if u_client and u_client.is_connected:
+        logger.info("Stopping Telegram User Client...")
+        await u_client.stop()
+    logger.info("Clients disconnected cleanly.")
 
 
 app = FastAPI(title="Telegram File Streamer", lifespan=lifespan, docs_url=None, redoc_url=None)
@@ -209,9 +221,10 @@ async def handle_file_stream(
         status_code = status.HTTP_206_PARTIAL_CONTENT
         headers["Content-Range"] = f"bytes {start}-{end}/{file_size}"
 
+    active_streamer = bot_module.user_client or bot_module.bot
     return StreamingResponse(
         byte_range_streamer(
-            client=bot_module.bot,
+            client=active_streamer,
             message=message,
             start_byte=start,
             end_byte=end,

@@ -21,6 +21,24 @@ from app.utils import get_media_info, human_readable_size
 logger = logging.getLogger(__name__)
 
 bot: Optional[Client] = None
+user_client: Optional[Client] = None
+
+
+def init_user_client() -> Optional[Client]:
+    """Initialize Telegram User Client for Telegram Premium unthrottled streaming."""
+    global user_client
+    if user_client is not None:
+        return user_client
+    if Config.SESSION_STRING:
+        user_client = Client(
+            name="TelegramUserClient",
+            session_string=Config.SESSION_STRING,
+            api_id=Config.API_ID,
+            api_hash=Config.API_HASH,
+            workers=Config.WORKERS,
+            max_concurrent_transmissions=20,
+        )
+    return user_client
 
 # Regex for Telegram channel/message links:
 # Matches: https://t.me/c/1234567890/42 or https://t.me/channel_username/42
@@ -99,21 +117,9 @@ def init_bot() -> Client:
     async def bin_channel_listener(client: Client, message: Message):
         """Automatically caches the BIN_CHANNEL peer whenever any message is posted in the channel."""
         logger.info(f"Received update from BIN_CHANNEL: {message.chat.id}")
-        """Cache the peer if a message from BIN_CHANNEL is forwarded to the bot."""
-        if message.forward_from_chat and message.forward_from_chat.id == Config.BIN_CHANNEL:
-            logger.info(f"Successfully cached BIN_CHANNEL peer: {message.forward_from_chat.title} ({Config.BIN_CHANNEL})")
-            if not message.media:
-                await message.reply_text(
-                    f"✅ **Storage Channel Peer Activated!**\n\n"
-                    f"Channel: `{message.forward_from_chat.title}`\n"
-                    f"ID: `{Config.BIN_CHANNEL}`\n\n"
-                    "Now you can forward any file, video, or archive from any channel here to generate high-speed download links!"
-                )
-                return
 
-        # If it contains media, let it pass to media_handler
-        if message.media:
-            await media_handler(client, message)
+    @bot.on_message(filters.command("id"))
+    async def id_handler(client: Client, message: Message):
         chat_id = message.chat.id
         if message.chat.type.name in ("CHANNEL", "SUPERGROUP", "GROUP"):
             await message.reply_text(

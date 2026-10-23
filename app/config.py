@@ -40,6 +40,9 @@ class Config:
         if uid.strip().isdigit()
     ]
 
+    # Optional: Telegram User Session String (Telegram Premium for 10x-50x download speeds)
+    SESSION_STRING: str = os.getenv("SESSION_STRING", "").strip()
+
     # Secret key used for optional link signing
     SECRET_KEY: str = os.getenv("SECRET_KEY", "telegram-file-streamer-secret-key")
 
