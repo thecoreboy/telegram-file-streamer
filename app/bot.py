@@ -2,6 +2,7 @@
 Telegram Bot handlers and client manager using Pyrogram MTProto.
 """
 
+import os
 import re
 import logging
 import asyncio
