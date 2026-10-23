@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Channel Files Directory - TG File Server</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b0f17;
+    }
+    .glass {
+      background: rgba(23, 29, 44, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between antialiased selection:bg-blue-600 selection:text-white">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800/80 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto px-4 py-3.5 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2.5 group">
+        <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+          <i class="fa-solid fa-bolt text-lg"></i>
+        </div>
+        <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-blue-400 via-indigo-300 to-white bg-clip-text text-transparent">TG File Server</span>
+      </a>
+      <div class="flex items-center gap-2">
+        <span class="text-xs text-slate-400">Channel: <code class="text-blue-400 bg-slate-800 px-2 py-0.5 rounded">{{ channel_id }}</code></span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="max-w-6xl mx-auto px-4 py-8 w-full flex-1">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-2xl font-bold text-white">Channel File Directory</h1>
+        <p class="text-sm text-slate-400 mt-1">Browse, stream, and download files directly with high-speed multi-connection support.</p>
+      </div>
+      <!-- Search Input -->
+      <div class="relative w-full sm:w-72">
+        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+        <input 
+          type="text" 
+          id="searchInput" 
+          onkeyup="filterFiles()" 
+          placeholder="Search files..." 
+          class="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 text-sm"
+        />
+      </div>
+    </div>
+
+    <!-- Files Table -->
+    <div class="glass rounded-2xl overflow-hidden shadow-2xl">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-slate-300">
+          <thead class="bg-slate-900/80 text-xs uppercase text-slate-400 border-b border-slate-800">
+            <tr>
+              <th scope="col" class="px-6 py-4">File Name</th>
+              <th scope="col" class="px-6 py-4">Size</th>
+              <th scope="col" class="px-6 py-4">Date</th>
+              <th scope="col" class="px-6 py-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="filesTable" class="divide-y divide-slate-800/60">
+            {% for file in files %}
+            <tr class="file-row hover:bg-slate-800/30 transition-colors">
+              <td class="px-6 py-4 font-medium text-white flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0">
+                  {% if file.media_type in ['video', 'animation'] %}
+                    <i class="fa-solid fa-film"></i>
+                  {% elif file.media_type in ['audio', 'voice'] %}
+                    <i class="fa-solid fa-music"></i>
+                  {% elif file.media_type == 'photo' %}
+                    <i class="fa-solid fa-image"></i>
+                  {% else %}
+                    <i class="fa-regular fa-file"></i>
+                  {% endif %}
+                </div>
+                <div class="overflow-hidden">
+                  <p class="file-name truncate max-w-xs sm:max-w-md">{{ file.file_name }}</p>
+                  <p class="text-xs text-slate-500">ID: {{ file.message_id }} &bull; {{ file.mime_type }}</p>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-slate-300 whitespace-nowrap">{{ file.file_size_formatted }}</td>
+              <td class="px-6 py-4 text-slate-400 whitespace-nowrap">{{ file.date }}</td>
+              <td class="px-6 py-4 text-right whitespace-nowrap">
+                <div class="inline-flex items-center gap-2">
+                  <a href="{{ file.watch_url }}" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg transition-colors inline-flex items-center gap-1.5">
+                    <i class="fa-regular fa-circle-play"></i>
+                    <span>Watch</span>
+                  </a>
+                  <a href="{{ file.dl_url }}" download class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium rounded-lg transition-colors inline-flex items-center gap-1.5 shadow-md shadow-blue-600/20">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Download</span>
+                  </a>
+                </div>
+              </td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="4" class="px-6 py-12 text-center text-slate-400">
+                <i class="fa-regular fa-folder-open text-3xl mb-2 block"></i>
+                No files found or bot does not have access to this channel yet.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <footer class="border-t border-slate-800/60 py-6 text-center text-xs text-slate-500">
+    <p>Powered by FastAPI & Telegram MTProto Streaming Engine</p>
+  </footer>
+
+  <script>
+    function filterFiles() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const rows = document.querySelectorAll('.file-row');
+      rows.forEach(row => {
+        const name = row.querySelector('.file-name').innerText.toLowerCase();
+        row.style.display = name.includes(query) ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>

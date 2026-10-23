@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telegram File Streamer - High-Speed File Server</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #0b0f17;
+    }
+    .glass {
+      background: rgba(23, 29, 44, 0.75);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+<body class="text-slate-100 min-h-screen flex flex-col justify-between antialiased">
+
+  <!-- Header -->
+  <header class="border-b border-slate-800/80 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between">
+      <div class="flex items-center gap-2.5">
+        <div class="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+          <i class="fa-solid fa-bolt text-lg"></i>
+        </div>
+        <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-blue-400 via-indigo-300 to-white bg-clip-text text-transparent">TG File Server</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          Server Online
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <main class="max-w-4xl mx-auto px-4 py-12 w-full flex-1 flex flex-col justify-center">
+    <div class="text-center mb-8">
+      <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-4">
+        Telegram High-Speed <span class="bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">File Server</span>
+      </h1>
+      <p class="text-slate-400 max-w-xl mx-auto text-base sm:text-lg">
+        Direct web downloads and video streaming directly from Telegram channels at full connection speed with HTTP Range support.
+      </p>
+    </div>
+
+    <!-- Quick File Access Box -->
+    <div class="glass rounded-2xl p-6 sm:p-8 shadow-2xl max-w-xl mx-auto w-full mb-10">
+      <h2 class="text-sm font-semibold uppercase tracking-wider text-slate-400 mb-3">Jump to File by Message ID</h2>
+      <form onsubmit="event.preventDefault(); goToMessage();" class="flex gap-2">
+        <input 
+          type="number" 
+          id="msgIdInput" 
+          placeholder="Enter Message ID (e.g. 124)" 
+          required 
+          class="w-full bg-slate-950/70 border border-slate-700/80 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm"
+        />
+        <button 
+          type="submit" 
+          class="px-5 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-xl text-sm transition-all shadow-lg shadow-blue-600/30 flex items-center gap-2 shrink-0">
+          <span>Open</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
+    </div>
+
+    <!-- Workflow Steps -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="glass p-6 rounded-2xl">
+        <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-lg mb-4">
+          <i class="fa-solid fa-paper-plane"></i>
+        </div>
+        <h3 class="font-bold text-slate-100 mb-1">1. Send File to Bot</h3>
+        <p class="text-slate-400 text-sm">Forward or upload any file, video, or document to your Telegram bot in private.</p>
+      </div>
+
+      <div class="glass p-6 rounded-2xl">
+        <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-lg mb-4">
+          <i class="fa-solid fa-link"></i>
+        </div>
+        <h3 class="font-bold text-slate-100 mb-1">2. Get Instant Links</h3>
+        <p class="text-slate-400 text-sm">The bot stores it in your storage channel and returns direct download and stream URLs.</p>
+      </div>
+
+      <div class="glass p-6 rounded-2xl">
+        <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg mb-4">
+          <i class="fa-solid fa-bolt"></i>
+        </div>
+        <h3 class="font-bold text-slate-100 mb-1">3. Max Speed Streaming</h3>
+        <p class="text-slate-400 text-sm">Share the link with friends to download with IDM or stream seekable videos directly.</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800/60 py-6 text-center text-xs text-slate-500">
+    <p>Telegram File Stream Server &bull; Open Source</p>
+  </footer>
+
+  <script>
+    function goToMessage() {
+      const id = document.getElementById('msgIdInput').value.trim();
+      if (id) {
+        window.location.href = `/watch/${id}`;
+      }
+    }
+  </script>
+</body>
+</html>
