@@ -19,9 +19,5 @@ services:
         sync: false
       - key: BIN_CHANNEL
         sync: false
-      - key: BASE_URL
-        sync: false
-      - key: AUTH_USERS
-        sync: false
       - key: SECRET_KEY
         generateValue: true

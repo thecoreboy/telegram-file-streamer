@@ -23,7 +23,9 @@ class Config:
     BIN_CHANNEL: int = int(_raw_bin) if _raw_bin and _raw_bin != "0" else 0
 
     # Public Base URL of your deployed application
-    BASE_URL: str = os.getenv("BASE_URL", "http://localhost:8000").rstrip("/")
+    # Automatically falls back to Render's RENDER_EXTERNAL_URL if deployed on Render
+    _raw_base = os.getenv("BASE_URL") or os.getenv("RENDER_EXTERNAL_URL") or "http://localhost:8000"
+    BASE_URL: str = _raw_base.rstrip("/")
 
     # Server binding
     HOST: str = os.getenv("HOST", "0.0.0.0")
