@@ -95,8 +95,25 @@ def init_bot() -> Client:
         )
         await message.reply_text(help_text)
 
-    @bot.on_message(filters.command("id"))
-    async def id_handler(client: Client, message: Message):
+    @bot.on_message(filters.chat(Config.BIN_CHANNEL))
+    async def bin_channel_listener(client: Client, message: Message):
+        """Automatically caches the BIN_CHANNEL peer whenever any message is posted in the channel."""
+        logger.info(f"Received update from BIN_CHANNEL: {message.chat.id}")
+        """Cache the peer if a message from BIN_CHANNEL is forwarded to the bot."""
+        if message.forward_from_chat and message.forward_from_chat.id == Config.BIN_CHANNEL:
+            logger.info(f"Successfully cached BIN_CHANNEL peer: {message.forward_from_chat.title} ({Config.BIN_CHANNEL})")
+            if not message.media:
+                await message.reply_text(
+                    f"✅ **Storage Channel Peer Activated!**\n\n"
+                    f"Channel: `{message.forward_from_chat.title}`\n"
+                    f"ID: `{Config.BIN_CHANNEL}`\n\n"
+                    "Now you can forward any file, video, or archive from any channel here to generate high-speed download links!"
+                )
+                return
+
+        # If it contains media, let it pass to media_handler
+        if message.media:
+            await media_handler(client, message)
         chat_id = message.chat.id
         if message.chat.type.name in ("CHANNEL", "SUPERGROUP", "GROUP"):
             await message.reply_text(
